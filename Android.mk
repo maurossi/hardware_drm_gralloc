@@ -51,8 +51,7 @@ LOCAL_VENDOR_MODULE := true
 LOCAL_CFLAGS := -std=c11 -Wno-unused-parameter
 
 LOCAL_SRC_FILES := \
-	gralloc_drm.c \
-	gralloc_drm_kms.c
+	gralloc_drm.c
 
 LOCAL_C_INCLUDES := \
 	external/libdrm \
