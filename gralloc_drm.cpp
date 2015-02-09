@@ -25,6 +25,7 @@
 
 #include <cutils/log.h>
 #include <cutils/atomic.h>
+#include <cutils/properties.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -121,6 +122,7 @@ static const char *fbdrv_map[][2] = {
  */
 struct gralloc_drm_t *gralloc_drm_create(void)
 {
+	char path[PROPERTY_VALUE_MAX];
 	struct gralloc_drm_t *drm;
 	FILE *fb;
 	unsigned card, ret = 0;
@@ -139,19 +141,11 @@ struct gralloc_drm_t *gralloc_drm_create(void)
 	if (!drm)
 		return NULL;
 
-	drm->fd = -1;
-	for (card = 0; card < sizeof(fbdrv_map) / sizeof(const char *) / 2; ++card) {
-		if (!strcmp(buf, fbdrv_map[card][0])) {
-			drm->fd = drmOpen(fbdrv_map[card][1], NULL);
-			ALOGD("drmOpen %s: %d", fbdrv_map[card][1], drm->fd);
-			break;
-		}
-	}
-
+	property_get("gralloc.drm.device", path, "/dev/dri/renderD128");
+	drm->fd = open(path, O_RDWR);
 	if (drm->fd < 0) {
-		ALOGE("failed to open driver for %s", buf);
-	} else {
-		drm->drv = init_drv_from_fd(drm->fd);
+		ALOGE("failed to open %s", path);
+		return NULL;
 	}
 
 	if (!drm->drv) {
@@ -183,42 +177,6 @@ int gralloc_drm_get_fd(struct gralloc_drm_t *drm)
 }
 
 /*
- * Get the magic for authentication.
- */
-int gralloc_drm_get_magic(struct gralloc_drm_t *drm, int32_t *magic)
-{
-	return drmGetMagic(drm->fd, (drm_magic_t *) magic);
-}
-
-/*
- * Authenticate a magic.
- */
-int gralloc_drm_auth_magic(struct gralloc_drm_t *drm, int32_t magic)
-{
-	return drmAuthMagic(drm->fd, (drm_magic_t) magic);
-}
-
-/*
- * Set as the master of a DRM device.
- */
-int gralloc_drm_set_master(struct gralloc_drm_t *drm)
-{
-	ALOGD("set master");
-	drmSetMaster(drm->fd);
-	drm->first_post = 1;
-
-	return 0;
-}
-
-/*
- * Drop from the master of a DRM device.
- */
-void gralloc_drm_drop_master(struct gralloc_drm_t *drm)
-{
-	drmDropMaster(drm->fd);
-}
-
-/*
  * Validate a buffer handle and return the associated bo.
  */
 static struct gralloc_drm_bo_t *validate_handle(buffer_handle_t _handle,
@@ -230,15 +188,18 @@ static struct gralloc_drm_bo_t *validate_handle(buffer_handle_t _handle,
 		return NULL;
 
 	/* the buffer handle is passed to a new process */
-	if (unlikely(handle->data_owner != gralloc_drm_get_pid())) {
+	ALOGE("data_owner=%d gralloc_pid=%d data=%p\n", handle->data_owner, gralloc_drm_get_pid(), handle->data);
+	if (unlikely(handle->data_owner != gralloc_drm_pid)) {
 		struct gralloc_drm_bo_t *bo;
 
 		/* check only */
 		if (!drm)
 			return NULL;
 
+		ALOGE("handle: name=%d pfd=%d\n", handle->name,
+			handle->prime_fd);
 		/* create the struct gralloc_drm_bo_t locally */
-		if (handle->name)
+		if (handle->name || handle->prime_fd >= 0)
 			bo = drm->drv->alloc(drm->drv, handle);
 		else /* an invalid handle */
 			bo = NULL;
@@ -311,6 +272,7 @@ static struct gralloc_drm_handle_t *create_bo_handle(int width,
 	handle->height = height;
 	handle->format = format;
 	handle->usage = usage;
+	handle->prime_fd = -1;
 
 	return handle;
 }
@@ -393,18 +355,6 @@ buffer_handle_t gralloc_drm_bo_get_handle(struct gralloc_drm_bo_t *bo, int *stri
 	if (stride)
 		*stride = bo->handle->stride;
 	return &bo->handle->base;
-}
-
-int gralloc_drm_get_gem_handle(buffer_handle_t _handle)
-{
-	struct gralloc_drm_handle_t *handle = gralloc_drm_handle(_handle);
-	return (handle) ? handle->name : 0;
-}
-
-int gralloc_drm_get_prime_fd(buffer_handle_t _handle)
-{
-	struct gralloc_drm_handle_t *handle = gralloc_drm_handle(_handle);
-	return (handle) ? handle->prime_fd : -1;
 }
 
 /*
