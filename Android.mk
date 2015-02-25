@@ -133,7 +133,8 @@ LOCAL_C_INCLUDES += \
 	external/mesa/src/gallium/include \
 	external/mesa/src/gallium/winsys \
 	external/mesa/src/gallium/drivers \
-	external/mesa/src/gallium/auxiliary
+	external/mesa/src/gallium/auxiliary \
+	external/mesa/src
 
 ifneq ($(filter r600g, $(DRM_GPU_DRIVERS)),)
 LOCAL_CFLAGS += -DENABLE_PIPE_R600
