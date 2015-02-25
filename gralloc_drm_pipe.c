@@ -60,19 +60,19 @@ static enum pipe_format get_pipe_format(int format)
 
 	switch (format) {
 	case HAL_PIXEL_FORMAT_RGBA_8888:
-		fmt = PIPE_FORMAT_R8G8B8A8_UNORM;
+		fmt = 2; /* was PIPE_FORMAT_R8G8B8A8_UNORM; */
 		break;
 	case HAL_PIXEL_FORMAT_RGBX_8888:
-		fmt = PIPE_FORMAT_R8G8B8X8_UNORM;
+		fmt = 1; /* was PIPE_FORMAT_R8G8B8X8_UNORM; */
 		break;
 	case HAL_PIXEL_FORMAT_RGB_888:
 		fmt = PIPE_FORMAT_R8G8B8_UNORM;
 		break;
 	case HAL_PIXEL_FORMAT_RGB_565:
-		fmt = PIPE_FORMAT_B5G6R5_UNORM;
+		fmt = 3; /* was PIPE_FORMAT_B5G6R5_UNORM; */
 		break;
 	case HAL_PIXEL_FORMAT_BGRA_8888:
-		fmt = PIPE_FORMAT_B8G8R8A8_UNORM;
+		fmt = 2; /* was PIPE_FORMAT_B8G8R8A8_UNORM; */
 		break;
 	case HAL_PIXEL_FORMAT_YV12:
 	case HAL_PIXEL_FORMAT_DRM_NV12:
