@@ -85,6 +85,10 @@ init_drv_from_fd(int fd)
 			ALOGI_IF(drv, "create radeon for driver radeon");
 		} else
 #endif
+#ifdef ENABLE_ROCKCHIP
+		if (!drv && !strcmp(version->name, "rockchip"))
+			drv = gralloc_drm_drv_create_for_rockchip(fd);
+#endif
 #ifdef ENABLE_NOUVEAU
 		if (!strcmp(version->name, "nouveau")) {
 			drv = gralloc_drm_drv_create_for_nouveau(fd);
