@@ -85,7 +85,7 @@ static struct nouveau_bo *alloc_bo(struct nouveau_info *info,
 	int tiled, scanout, sw_indicator;
 	unsigned int align;
 
-	flags = NOUVEAU_BO_MAP | NOUVEAU_BO_VRAM;
+	flags = NOUVEAU_BO_MAP | NOUVEAU_BO_VRAM | NOUVEAU_BO_COHERENT;
 
 	scanout = !!(usage & GRALLOC_USAGE_HW_FB);
 
