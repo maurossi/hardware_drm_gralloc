@@ -85,6 +85,9 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_CFLAGS := -std=c99
 
+LOCAL_EXPORT_C_INCLUDE_DIRS := \
+			$(LOCAL_PATH)
+
 LOCAL_SRC_FILES := \
 	gralloc_drm.c \
 	gralloc_drm_kms.c
