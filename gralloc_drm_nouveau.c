@@ -85,7 +85,7 @@ static struct nouveau_bo *alloc_bo(struct nouveau_info *info,
 	int tiled, scanout, sw_indicator;
 	unsigned int align;
 
-	flags = NOUVEAU_BO_MAP | NOUVEAU_BO_VRAM;
+	flags = NOUVEAU_BO_MAP | NOUVEAU_BO_VRAM | NOUVEAU_BO_COHERENT;
 
 	scanout = !!(usage & GRALLOC_USAGE_HW_FB);
 
@@ -279,7 +279,7 @@ static int nouveau_map(struct gralloc_drm_drv_t *drv,
 	uint32_t flags;
 	int err;
 
-	flags = NOUVEAU_BO_RD;
+	flags = NOUVEAU_BO_RD | NOUVEAU_BO_COHERENT;
 	if (enable_write)
 		flags |= NOUVEAU_BO_WR;
 
