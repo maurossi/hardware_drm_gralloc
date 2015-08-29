@@ -89,6 +89,9 @@ LOCAL_SRC_FILES := \
 	gralloc_drm.c \
 	gralloc_drm_kms.c
 
+LOCAL_EXPORT_C_INCLUDE_DIRS := \
+	$(LOCAL_PATH)
+
 LOCAL_SHARED_LIBRARIES := \
 	libdrm \
 	liblog \
