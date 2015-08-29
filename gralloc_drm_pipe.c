@@ -232,7 +232,7 @@ static int pipe_map(struct gralloc_drm_drv_t *drv,
 
 	/* need a context to get transfer */
 	if (!pm->context) {
-		pm->context = pm->screen->context_create(pm->screen, NULL);
+		pm->context = pm->screen->context_create(pm->screen, NULL, 0);
 		if (!pm->context) {
 			ALOGE("failed to create pipe context");
 			err = -ENOMEM;
@@ -318,7 +318,7 @@ static void pipe_blit(struct gralloc_drm_drv_t *drv,
 
 	/* need a context for copying */
 	if (!pm->context) {
-		pm->context = pm->screen->context_create(pm->screen, NULL);
+		pm->context = pm->screen->context_create(pm->screen, NULL, 0);
 		if (!pm->context) {
 			ALOGE("failed to create pipe context");
 			pthread_mutex_unlock(&pm->mutex);
