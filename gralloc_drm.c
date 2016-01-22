@@ -278,6 +278,7 @@ static struct gralloc_drm_handle_t *create_bo_handle(int width,
 	handle->format = format;
 	handle->usage = usage;
 	handle->plane_mask = 0;
+	handle->prime_fd = -1;
 
 	return handle;
 }
@@ -370,6 +371,12 @@ int gralloc_drm_get_gem_handle(buffer_handle_t _handle)
 {
 	struct gralloc_drm_handle_t *handle = gralloc_drm_handle(_handle);
 	return (handle) ? handle->name : 0;
+}
+
+int gralloc_drm_get_prime_fd(buffer_handle_t _handle)
+{
+	struct gralloc_drm_handle_t *handle = gralloc_drm_handle(_handle);
+	return (handle) ? handle->prime_fd : -1;
 }
 
 /*
