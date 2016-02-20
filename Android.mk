@@ -26,8 +26,7 @@ DRM_GPU_DRIVERS := $(strip $(filter-out swrast, $(BOARD_GPU_DRIVERS)))
 freedreno_drivers := freedreno
 intel_drivers := i915 i965 i915g ilo
 radeon_drivers := r300g r600g radeonsi
-nouveau_drivers := nouveau
-vmwgfx_drivers := vmwgfx
+pipe_drivers := nouveau vmwgfx
 
 valid_drivers := \
 	prebuilt \
@@ -45,7 +44,7 @@ $(warning invalid GPU drivers: $(invalid_drivers))
 DRM_GPU_DRIVERS := $(filter-out $(invalid_drivers), $(DRM_GPU_DRIVERS))
 endif
 
-ifneq ($(filter $(vmwgfx_drivers), $(DRM_GPU_DRIVERS)),)
+ifneq ($(filter $(pipe_drivers), $(DRM_GPU_DRIVERS)),)
 DRM_USES_PIPE := true
 else
 DRM_USES_PIPE := false
@@ -116,11 +115,11 @@ LOCAL_CFLAGS += -DENABLE_RADEON
 LOCAL_SHARED_LIBRARIES += libdrm_radeon
 endif
 
-ifneq ($(filter $(nouveau_drivers), $(DRM_GPU_DRIVERS)),)
-LOCAL_SRC_FILES += gralloc_drm_nouveau.c
-LOCAL_CFLAGS += -DENABLE_NOUVEAU
-LOCAL_SHARED_LIBRARIES += libdrm_nouveau
-endif
+#ifneq ($(filter $(nouveau_drivers), $(DRM_GPU_DRIVERS)),)
+#LOCAL_SRC_FILES += gralloc_drm_nouveau.c
+#LOCAL_CFLAGS += -DENABLE_NOUVEAU
+#LOCAL_SHARED_LIBRARIES += libdrm_nouveau
+#endif
 
 ifeq ($(strip $(DRM_USES_PIPE)),true)
 LOCAL_SRC_FILES += gralloc_drm_pipe.c
@@ -140,6 +139,13 @@ LOCAL_STATIC_LIBRARIES += \
 	libmesa_winsys_svga
 LOCAL_C_INCLUDES += \
 	external/mesa/src/gallium/drivers/svga/include
+endif
+
+ifneq ($(filter nouveau, $(DRM_GPU_DRIVERS)),)
+LOCAL_CFLAGS += -DENABLE_PIPE_NOUVEAU
+LOCAL_STATIC_LIBRARIES += \
+	libmesa_pipe_nouveau \
+	libmesa_winsys_nouveau
 endif
 
 LOCAL_STATIC_LIBRARIES += \
