@@ -55,7 +55,7 @@ struct gralloc_drm_handle_t {
 	union {
 		struct gralloc_drm_bo_t *data; /* pointer to struct gralloc_drm_bo_t */
 		int64_t __padding;
-	};
+	} __attribute__((aligned(8)));
 };
 
 #define GRALLOC_DRM_HANDLE_MAGIC 0x12345678
