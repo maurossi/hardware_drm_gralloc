@@ -150,7 +150,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 		buf->winsys.stride = handle->stride;
 
 		buf->resource = pm->screen->resource_from_handle(pm->screen,
-				&templ, &buf->winsys);
+				&templ, &buf->winsys, PIPE_HANDLE_USAGE_READ_WRITE);
 		if (!buf->resource)
 			goto fail;
 	}
@@ -162,7 +162,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 
 		buf->winsys.type = DRM_API_HANDLE_TYPE_SHARED;
 		if (!pm->screen->resource_get_handle(pm->screen,
-					buf->resource, &buf->winsys))
+					buf->resource, &buf->winsys, PIPE_HANDLE_USAGE_READ_WRITE))
 			goto fail;
 	}
 
@@ -173,7 +173,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 		memset(&tmp, 0, sizeof(tmp));
 		tmp.type = DRM_API_HANDLE_TYPE_KMS;
 		if (!pm->screen->resource_get_handle(pm->screen,
-					buf->resource, &tmp))
+					buf->resource, &tmp, PIPE_HANDLE_USAGE_READ_WRITE))
 			goto fail;
 
 		buf->base.fb_handle = tmp.handle;
