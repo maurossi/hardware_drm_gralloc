@@ -32,8 +32,8 @@ valid_drivers := \
 	prebuilt \
 	$(freedreno_drivers) \
 	$(intel_drivers) \
-	$(radeon_drivers) \
-	$(nouveau_drivers)
+	$(radeon_drivers)
+
 
 # Assume other driver names are pipe drivers
 ifneq ($(filter-out $(valid_drivers), $(DRM_GPU_DRIVERS)),)
