@@ -362,9 +362,11 @@ static int nouveau_init(struct nouveau_info *info)
 		break;
 	case 0xe0:
 	case 0xf0:
+	case 0x100:
 		info->arch = NV_KEPLER;
 		break;
 	case 0x110:
+	case 0x120:
 		info->arch = NV_MAXWELL;
 		break;
 	default:
