@@ -68,13 +68,6 @@ init_drv_from_fd(int fd)
 	}
 
 	if (version->name) {
-#ifdef ENABLE_PIPE
-		drv = gralloc_drm_drv_create_for_pipe(fd, version->name);
-		if (drv) {
-			ALOGI("create pipe for driver %s", version->name);
-		} else
-#endif
-
 #ifdef ENABLE_FREEDRENO
 		if (!strcmp(version->name, "msm")) {
 			drv = gralloc_drm_drv_create_for_freedreno(fd);
@@ -97,6 +90,12 @@ init_drv_from_fd(int fd)
 		if (!strcmp(version->name, "nouveau")) {
 			drv = gralloc_drm_drv_create_for_nouveau(fd);
 			ALOGI_IF(drv, "create nouveau for driver nouveau");
+		} else
+#endif
+#ifdef ENABLE_PIPE
+		if (!drv) {
+			drv = gralloc_drm_drv_create_for_pipe(fd, version->name);
+			ALOGI_IF(drv, "create pipe for driver %s", version->name);
 		} else
 #endif
 		if (!drv) {
