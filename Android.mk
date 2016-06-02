@@ -113,7 +113,8 @@ endif
 
 ifneq ($(filter pipe, $(DRM_GPU_DRIVERS)),)
 LOCAL_SRC_FILES += gralloc_drm_pipe.c
-LOCAL_CFLAGS += -DENABLE_PIPE
+LOCAL_CFLAGS += -DENABLE_PIPE -DDMABUF
+
 LOCAL_C_INCLUDES += \
 	external/mesa/include \
 	external/mesa/src \

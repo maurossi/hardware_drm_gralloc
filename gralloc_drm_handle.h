@@ -59,7 +59,7 @@ struct gralloc_drm_handle_t {
 };
 
 #define GRALLOC_DRM_HANDLE_MAGIC 0x12345678
-#define GRALLOC_DRM_HANDLE_NUM_FDS 0
+#define GRALLOC_DRM_HANDLE_NUM_FDS 1
 #define GRALLOC_DRM_HANDLE_NUM_INTS (						\
 	((sizeof(struct gralloc_drm_handle_t) - sizeof(native_handle_t))/sizeof(int))	\
 	 - GRALLOC_DRM_HANDLE_NUM_FDS)
