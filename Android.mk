@@ -72,7 +72,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libgralloc_drm
 LOCAL_MODULE_TAGS := optional
 
-LOCAL_CFLAGS := -std=c99
+LOCAL_CFLAGS := -std=c99 -DHAVE___BUILTIN_FFS -DHAVE___BUILTIN_FFSLL
 
 LOCAL_SRC_FILES := \
 	gralloc_drm.c \
