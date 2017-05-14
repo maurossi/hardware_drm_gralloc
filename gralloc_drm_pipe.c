@@ -98,6 +98,8 @@ static unsigned get_pipe_bind(int usage)
 {
 	unsigned bind = PIPE_BIND_SHARED;
 
+	if (usage & (GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_OFTEN))
+		bind |= PIPE_BIND_LINEAR;
 	if (usage & GRALLOC_USAGE_HW_TEXTURE)
 		bind |= PIPE_BIND_SAMPLER_VIEW;
 	if (usage & GRALLOC_USAGE_HW_RENDER)
