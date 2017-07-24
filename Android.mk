@@ -97,6 +97,7 @@ LOCAL_SHARED_LIBRARIES := \
 	liblog \
 	libcutils \
 	libhardware_legacy \
+	libLLVM
 
 ifneq ($(filter $(freedreno_drivers), $(DRM_GPU_DRIVERS)),)
 LOCAL_SRC_FILES += gralloc_drm_freedreno.c
