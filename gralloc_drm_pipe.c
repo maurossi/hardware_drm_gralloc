@@ -25,7 +25,6 @@
 
 #include <cutils/log.h>
 #include <errno.h>
-#include <dlfcn.h>
 
 #include <pipe/p_screen.h>
 #include <pipe/p_context.h>
@@ -36,19 +35,12 @@
 #include "gralloc_drm.h"
 #include "gralloc_drm_priv.h"
 
-#if defined(__LP64__)
-#define DRI_LIBRARY_PATH "/system/lib64/dri"
-#else
-#define DRI_LIBRARY_PATH "/system/lib/dri"
-#endif
-
 struct pipe_manager {
 	struct gralloc_drm_drv_t base;
 
 	int fd;
-	void *gallium;
+	char driver[16];
 	pthread_mutex_t mutex;
-	struct pipe_loader_device *dev;
 	struct pipe_screen *screen;
 	struct pipe_context *context;
 };
@@ -364,14 +356,176 @@ static void pipe_destroy(struct gralloc_drm_drv_t *drv)
 	if (pm->context)
 		pm->context->destroy(pm->context);
 	pm->screen->destroy(pm->screen);
-	dlclose(pm->gallium);
 	FREE(pm);
+}
+
+/* for freedreno */
+#include "freedreno/drm/freedreno_drm_public.h"
+/* for nouveau */
+#include "nouveau/drm/nouveau_drm_public.h"
+/* for r300 */
+#include "radeon/drm/radeon_drm_public.h"
+#include "r300/r300_public.h"
+/* for r600 */
+#include "r600/r600_public.h"
+/* for vmwgfx */
+#include "svga/drm/svga_drm_public.h"
+#include "svga/svga_public.h"
+/* for debug */
+#include "target-helpers/inline_debug_helper.h"
+
+static int pipe_init_screen(struct pipe_manager *pm)
+{
+	struct pipe_screen *screen;
+
+#ifdef ENABLE_PIPE_FREEDRENO
+	if (strcmp(pm->driver, "msm"))
+		screen = fd_drm_screen_create(pm->fd);
+	else
+#endif
+#ifdef ENABLE_PIPE_NOUVEAU
+	if (strcmp(pm->driver, "nouveau") == 0)
+		screen = nouveau_drm_screen_create(pm->fd);
+	else
+#endif
+#ifdef ENABLE_PIPE_R300
+	if (strcmp(pm->driver, "r300") == 0) {
+		struct radeon_winsys *sws =
+			radeon_drm_winsys_create(pm->fd, r300_screen_create);
+
+		screen = sws ? sws->screen : NULL;
+	}
+	else
+#endif
+#ifdef ENABLE_PIPE_R600
+	if (strcmp(pm->driver, "r600") == 0) {
+		struct radeon_winsys *sws =
+			radeon_drm_winsys_create(pm->fd, r600_screen_create);
+
+		screen = sws ? sws->screen : NULL;
+	}
+	else
+#endif
+#ifdef ENABLE_PIPE_VMWGFX
+	if (strcmp(pm->driver, "vmwgfx") == 0) {
+		struct svga_winsys_screen *sws =
+			svga_drm_winsys_screen_create(pm->fd);
+
+		screen = sws ? svga_screen_create(sws) : NULL;
+	}
+	else
+#endif
+		screen = NULL;
+
+	if (!screen) {
+		ALOGW("failed to create pipe screen for %s", pm->driver);
+		return -EINVAL;
+	}
+
+	pm->screen = debug_screen_wrap(screen);
+
+	return 0;
+}
+
+#include <xf86drm.h>
+#include <i915_drm.h>
+#include <radeon_drm.h>
+static int pipe_get_pci_id(struct pipe_manager *pm,
+		const char *name, int *vendor, int *device)
+{
+	int err = -EINVAL;
+
+	if (strcmp(name, "i915") == 0) {
+		struct drm_i915_getparam gp;
+
+		*vendor = 0x8086;
+
+		memset(&gp, 0, sizeof(gp));
+		gp.param = I915_PARAM_CHIPSET_ID;
+		gp.value = device;
+		err = drmCommandWriteRead(pm->fd, DRM_I915_GETPARAM, &gp, sizeof(gp));
+	}
+	else if (strcmp(name, "radeon") == 0) {
+		struct drm_radeon_info info;
+
+		*vendor = 0x1002;
+
+		memset(&info, 0, sizeof(info));
+		info.request = RADEON_INFO_DEVICE_ID;
+		info.value = (long) device;
+		err = drmCommandWriteRead(pm->fd, DRM_RADEON_INFO, &info, sizeof(info));
+	}
+	else if (strcmp(name, "nouveau") == 0) {
+		*vendor = 0x10de;
+		*device = 0;
+		err = 0;
+	}
+	else if (strcmp(name, "vmwgfx") == 0) {
+		*vendor = 0x15ad;
+		/* assume SVGA II */
+		*device = 0x0405;
+		err = 0;
+	}
+	else {
+		err = -EINVAL;
+	}
+
+	return err;
+}
+
+#define DRIVER_MAP_GALLIUM_ONLY
+#include "pci_ids/pci_id_driver_map.h"
+static int pipe_find_driver(struct pipe_manager *pm, const char *name)
+{
+	int vendor, device;
+	int err;
+	const char *driver;
+
+	err = pipe_get_pci_id(pm, name, &vendor, &device);
+	if (!err) {
+		int idx;
+
+		/* look up in the driver map */
+		for (idx = 0; driver_map[idx].driver; idx++) {
+			int i;
+
+			if (vendor != driver_map[idx].vendor_id)
+				continue;
+
+			if (driver_map[idx].num_chips_ids == -1)
+				break;
+
+			for (i = 0; i < driver_map[idx].num_chips_ids; i++) {
+				if (driver_map[idx].chip_ids[i] == device)
+					break;
+			}
+			if (i < driver_map[idx].num_chips_ids)
+				break;
+		}
+
+		driver = driver_map[idx].driver;
+		err = (driver) ? 0 : -ENODEV;
+	}
+	else {
+		if (strcmp(name, "vmwgfx") == 0) {
+			driver = "vmwgfx";
+			err = 0;
+		}
+		if (strcmp(name, "msm") == 0) {
+			driver = "msm";
+			err = 0;
+		}
+	}
+
+	if (!err)
+		strncpy(pm->driver, driver, sizeof(pm->driver) - 1);
+
+	return err;
 }
 
 struct gralloc_drm_drv_t *gralloc_drm_drv_create_for_pipe(int fd, const char *name)
 {
 	struct pipe_manager *pm;
-	struct pipe_screen *(*load_pipe_screen)(struct pipe_loader_device **dev, int fd);
 
 	pm = CALLOC(1, sizeof(*pm));
 	if (!pm) {
@@ -382,16 +536,12 @@ struct gralloc_drm_drv_t *gralloc_drm_drv_create_for_pipe(int fd, const char *na
 	pm->fd = fd;
 	pthread_mutex_init(&pm->mutex, NULL);
 
-	pm->gallium = dlopen(DRI_LIBRARY_PATH"/gallium_dri.so", RTLD_NOW | RTLD_GLOBAL);
-	if (!pm->gallium) {
+	if (pipe_find_driver(pm, name)) {
 		FREE(pm);
 		return NULL;
 	}
-	load_pipe_screen = dlsym(pm->gallium, "load_pipe_screen");
 
-	pm->screen = load_pipe_screen(&pm->dev, fd);
-	if (!pm->screen) {
-		dlclose(pm->gallium);
+	if (pipe_init_screen(pm)) {
 		FREE(pm);
 		return NULL;
 	}

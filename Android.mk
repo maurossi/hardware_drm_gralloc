@@ -27,15 +27,15 @@ freedreno_drivers := freedreno
 intel_drivers := i915 i965 i915g ilo
 radeon_drivers := r300g r600g radeonsi
 nouveau_drivers := nouveau
-pipe_drivers := freedreno virgl vmwgfx
+vmwgfx_drivers := vmwgfx
 
 valid_drivers := \
 	prebuilt \
-	$(pipe_drivers) \
 	$(freedreno_drivers) \
 	$(intel_drivers) \
 	$(radeon_drivers) \
-	$(nouveau_drivers)
+	$(nouveau_drivers) \
+	$(vmwgfx_drivers)
 
 # warn about invalid drivers
 invalid_drivers := $(filter-out $(valid_drivers), $(DRM_GPU_DRIVERS))
@@ -43,6 +43,12 @@ ifneq ($(invalid_drivers),)
 $(warning invalid GPU drivers: $(invalid_drivers))
 # tidy up
 DRM_GPU_DRIVERS := $(filter-out $(invalid_drivers), $(DRM_GPU_DRIVERS))
+endif
+
+ifneq ($(filter $(vmwgfx_drivers), $(DRM_GPU_DRIVERS)),)
+DRM_USES_PIPE := true
+else
+DRM_USES_PIPE := false
 endif
 
 ifneq ($(strip $(DRM_GPU_DRIVERS)),)
@@ -116,22 +122,32 @@ LOCAL_CFLAGS += -DENABLE_NOUVEAU
 LOCAL_SHARED_LIBRARIES += libdrm_nouveau
 endif
 
-ifneq ($(filter $(pipe_drivers), $(DRM_GPU_DRIVERS)),)
+ifeq ($(strip $(DRM_USES_PIPE)),true)
 LOCAL_SRC_FILES += gralloc_drm_pipe.c
 LOCAL_CFLAGS += -DENABLE_PIPE
 LOCAL_C_INCLUDES += \
 	external/mesa/include \
 	external/mesa/src \
 	external/mesa/src/gallium/include \
+	external/mesa/src/gallium/winsys \
+	external/mesa/src/gallium/drivers \
 	external/mesa/src/gallium/auxiliary
+
+ifneq ($(filter vmwgfx, $(DRM_GPU_DRIVERS)),)
+LOCAL_CFLAGS += -DENABLE_PIPE_VMWGFX
+LOCAL_STATIC_LIBRARIES += \
+	libmesa_pipe_svga \
+	libmesa_winsys_svga
+LOCAL_C_INCLUDES += \
+	external/mesa/src/gallium/drivers/svga/include
+endif
 
 LOCAL_STATIC_LIBRARIES += \
 	libmesa_gallium \
 	libmesa_util \
 
 LOCAL_SHARED_LIBRARIES += libdl
-endif # pipe_drivers
-
+endif # DRM_USES_PIPE
 include $(BUILD_SHARED_LIBRARY)
 
 
