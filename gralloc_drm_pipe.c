@@ -383,16 +383,18 @@ struct gralloc_drm_drv_t *gralloc_drm_drv_create_for_pipe(int fd, const char *na
 	pthread_mutex_init(&pm->mutex, NULL);
 
 	pm->gallium = dlopen(DRI_LIBRARY_PATH"/gallium_dri.so", RTLD_NOW | RTLD_GLOBAL);
-	if (!pm->gallium)
-		goto err_open;
-
+	if (!pm->gallium) {
+		FREE(pm);
+		return NULL;
+	}
 	load_pipe_screen = dlsym(pm->gallium, "load_pipe_screen");
-	if (!load_pipe_screen)
-		goto err_load;
 
 	pm->screen = load_pipe_screen(&pm->dev, fd);
-	if (!pm->screen)
-		goto err_load;
+	if (!pm->screen) {
+		dlclose(pm->gallium);
+		FREE(pm);
+		return NULL;
+	}
 
 	pm->base.destroy = pipe_destroy;
 	pm->base.init_kms_features = pipe_init_kms_features;
@@ -403,10 +405,4 @@ struct gralloc_drm_drv_t *gralloc_drm_drv_create_for_pipe(int fd, const char *na
 	pm->base.blit = pipe_blit;
 
 	return &pm->base;
-
-err_load:
-	dlclose(pm->gallium);
-err_open:
-	FREE(pm);
-	return NULL;
 }
