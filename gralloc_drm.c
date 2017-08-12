@@ -38,6 +38,10 @@
 
 #define GRALLOC_DRM_DEVICE "/dev/dri/card0"
 
+#ifndef DRM_FORMAT_MOD_INVALID
+#define DRM_FORMAT_MOD_INVALID ((1ULL<<56) - 1)
+#endif
+
 static int32_t gralloc_drm_pid = 0;
 
 /*
@@ -320,6 +324,7 @@ struct gralloc_drm_bo_t *gralloc_drm_bo_create(struct gralloc_drm_t *drm,
 
 	handle->data_owner = gralloc_drm_get_pid();
 	handle->data = bo;
+	handle->modifier = DRM_FORMAT_MOD_INVALID;
 
 	return bo;
 }
