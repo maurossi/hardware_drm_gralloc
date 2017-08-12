@@ -69,7 +69,7 @@ static int drm_mod_perform(const struct gralloc_module_t *mod, int op, ...)
 	case GRALLOC_MODULE_PERFORM_GET_DRM_FD:
 		{
 			int *fd = va_arg(args, int *);
-			*fd = gralloc_drm_get_fd(dmod->drm);
+			*fd = dup(gralloc_drm_get_fd(dmod->drm));
 			err = 0;
 		}
 		break;
