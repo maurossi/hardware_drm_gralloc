@@ -46,6 +46,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := libgralloc_drm
 LOCAL_MODULE_TAGS := optional
+LOCAL_VENDOR_MODULE := true
 
 LOCAL_CFLAGS := -std=c99
 
@@ -118,6 +119,7 @@ LOCAL_SHARED_LIBRARIES += \
 LOCAL_MODULE := gralloc.drm
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_RELATIVE_PATH := hw
+LOCAL_VENDOR_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
 
 endif # DRM_GPU_DRIVERS
