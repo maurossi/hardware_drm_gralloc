@@ -37,9 +37,9 @@
 #include "gralloc_drm_priv.h"
 
 #if defined(__LP64__)
-#define DRI_LIBRARY_PATH "/system/lib64/dri"
+#define DRI_LIBRARY_PATH "/vendor/lib64/dri"
 #else
-#define DRI_LIBRARY_PATH "/system/lib/dri"
+#define DRI_LIBRARY_PATH "/vendor/lib/dri"
 #endif
 
 struct pipe_manager {
