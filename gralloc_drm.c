@@ -36,8 +36,6 @@
 
 #define unlikely(x) __builtin_expect(!!(x), 0)
 
-#define GRALLOC_DRM_DEVICE "/dev/dri/card0"
-
 static int32_t gralloc_drm_pid = 0;
 
 /*
@@ -109,25 +107,53 @@ init_drv_from_fd(int fd)
 	return drv;
 }
 
+static const char *fbdrv_map[][2] = {
+	{ "amdgpudrmfb",  "amdgpu" },
+	{ "inteldrmfb",   "i915" },
+	{ "nouveaufb",    "nouveau" },
+	{ "radeondrmfb",  "radeon" },
+	{ "svgadrmfb",    "vmwgfx" },
+	{ "virtiodrmfb",  "virtio_gpu" },
+};
+
 /*
  * Create a DRM device object.
  */
 struct gralloc_drm_t *gralloc_drm_create(void)
 {
 	struct gralloc_drm_t *drm;
-	int err;
+	FILE *fb;
+	unsigned card, ret = 0;
+	char buf[64];
+
+	if ((fb = fopen("/proc/fb", "r"))) {
+		ret = fscanf(fb, "%u %s", &card, buf);
+		fclose(fb);
+	}
+	if (ret != 2) {
+		ALOGE("failed to open /proc/fb");
+		return NULL;
+	}
 
 	drm = calloc(1, sizeof(*drm));
 	if (!drm)
 		return NULL;
 
-	drm->fd = open(GRALLOC_DRM_DEVICE, O_RDWR);
-	if (drm->fd < 0) {
-		ALOGE("failed to open %s", GRALLOC_DRM_DEVICE);
-		return NULL;
+	drm->fd = -1;
+	for (card = 0; card < sizeof(fbdrv_map) / sizeof(const char *) / 2; ++card) {
+		if (!strcmp(buf, fbdrv_map[card][0])) {
+			drm->fd = drmOpen(fbdrv_map[card][1], NULL);
+			ALOGD("drmOpen %s: %d", fbdrv_map[card][1], drm->fd);
+			break;
+		}
 	}
 
-	drm->drv = init_drv_from_fd(drm->fd);
+	if (drm->fd < 0) {
+		ALOGE("failed to open driver for %s", buf);
+	} else {
+		drm->drv = init_drv_from_fd(drm->fd);
+	}
+
 	if (!drm->drv) {
 		close(drm->fd);
 		free(drm);
