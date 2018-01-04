@@ -56,7 +56,7 @@
 // Comment out the following to switch between the "sw_indicator disables all
 // tiling" and "sw_indicator zeroes the tile|surf_flags (object tiling?)".
 // Does the latter even make sense ... ? Going through the kernel on the
-// topic is slightly annoying :\
+// topic is slightly annoying :/
 
 #undef SW_INDICATOR_FULLY_DISABLES_TILING
 
