@@ -29,7 +29,7 @@
 
 #include <pipe/p_screen.h>
 #include <pipe/p_context.h>
-#include <state_tracker/drm_driver.h>
+#include <state_tracker/winsys_handle.h>
 #include <util/u_inlines.h>
 #include <util/u_memory.h>
 
@@ -142,7 +142,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 	templ.array_size = 1;
 
 	if (handle->name) {
-		buf->winsys.type = DRM_API_HANDLE_TYPE_SHARED;
+		buf->winsys.type = WINSYS_HANDLE_TYPE_SHARED;
 		buf->winsys.handle = handle->name;
 		buf->winsys.stride = handle->stride;
 
@@ -157,7 +157,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 		if (!buf->resource)
 			goto fail;
 
-		buf->winsys.type = DRM_API_HANDLE_TYPE_SHARED;
+		buf->winsys.type = WINSYS_HANDLE_TYPE_SHARED;
 		if (!pm->screen->resource_get_handle(pm->screen, pm->context,
 				buf->resource, &buf->winsys, PIPE_HANDLE_USAGE_READ_WRITE))
 			goto fail;
@@ -168,7 +168,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 		struct winsys_handle tmp;
 
 		memset(&tmp, 0, sizeof(tmp));
-		tmp.type = DRM_API_HANDLE_TYPE_KMS;
+		tmp.type = WINSYS_HANDLE_TYPE_KMS;
 		if (!pm->screen->resource_get_handle(pm->screen, pm->context,
 				buf->resource, &tmp, PIPE_HANDLE_USAGE_READ_WRITE))
 			goto fail;
