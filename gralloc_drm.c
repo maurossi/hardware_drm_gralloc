@@ -113,6 +113,7 @@ static const char *fbdrv_map[][2] = {
 	{ "nouveaufb",    "nouveau" },
 	{ "radeondrmfb",  "radeon" },
 	{ "svgadrmfb",    "vmwgfx" },
+	{ "vboxdrmfb",    "vboxvideo" },
 	{ "virtiodrmfb",  "virtio_gpu" },
 };
 
