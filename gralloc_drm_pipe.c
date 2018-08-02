@@ -125,7 +125,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 
 	if (templ.format == PIPE_FORMAT_NONE ||
 	    !pm->screen->is_format_supported(pm->screen, templ.format,
-				templ.target, 0, templ.bind)) {
+				templ.target, 0, 0, templ.bind)) {
 		ALOGE("unsupported format 0x%x", handle->format);
 		return NULL;
 	}
