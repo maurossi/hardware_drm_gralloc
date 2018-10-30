@@ -147,7 +147,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 		buf->winsys.stride = handle->stride;
 
 		buf->resource = pm->screen->resource_from_handle(pm->screen,
-				&templ, &buf->winsys, PIPE_HANDLE_USAGE_READ_WRITE);
+				&templ, &buf->winsys, PIPE_HANDLE_USAGE_FRAMEBUFFER_WRITE);
 		if (!buf->resource)
 			goto fail;
 	}
@@ -159,7 +159,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 
 		buf->winsys.type = WINSYS_HANDLE_TYPE_SHARED;
 		if (!pm->screen->resource_get_handle(pm->screen, pm->context,
-				buf->resource, &buf->winsys, PIPE_HANDLE_USAGE_READ_WRITE))
+				buf->resource, &buf->winsys, PIPE_HANDLE_USAGE_FRAMEBUFFER_WRITE))
 			goto fail;
 	}
 
@@ -170,7 +170,7 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 		memset(&tmp, 0, sizeof(tmp));
 		tmp.type = WINSYS_HANDLE_TYPE_KMS;
 		if (!pm->screen->resource_get_handle(pm->screen, pm->context,
-				buf->resource, &tmp, PIPE_HANDLE_USAGE_READ_WRITE))
+				buf->resource, &tmp, PIPE_HANDLE_USAGE_FRAMEBUFFER_WRITE))
 			goto fail;
 
 		buf->base.fb_handle = tmp.handle;
