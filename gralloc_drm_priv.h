@@ -28,7 +28,7 @@
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
-#include "gralloc_drm_handle.h"
+#include <android/gralloc_handle.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -156,7 +156,7 @@ struct gralloc_drm_drv_t {
 
 	/* allocate or import a bo */
 	struct gralloc_drm_bo_t *(*alloc)(struct gralloc_drm_drv_t *drv,
-			                  struct gralloc_drm_handle_t *handle);
+			                  struct gralloc_handle_t *bo);
 
 	/* free a bo */
 	void (*free)(struct gralloc_drm_drv_t *drv,
@@ -188,10 +188,11 @@ struct gralloc_drm_drv_t {
 
 struct gralloc_drm_bo_t {
 	struct gralloc_drm_t *drm;
-	struct gralloc_drm_handle_t *handle;
+	struct gralloc_handle_t *handle;
 
 	int imported;  /* the handle is from a remote proces when true */
 	int fb_handle; /* the GEM handle of the bo */
+	int gem_name;  /* the GEM name of the bo */
 	int fb_id;     /* the fb id */
 
 	int lock_count;
