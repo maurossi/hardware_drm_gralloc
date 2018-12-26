@@ -28,7 +28,7 @@
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
-#include "gralloc_drm_handle.h"
+#include <android/gralloc_handle.h>
 
 #ifdef __cplusplus
 extern "C" {

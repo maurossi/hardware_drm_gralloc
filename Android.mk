@@ -48,10 +48,10 @@ LOCAL_MODULE := libgralloc_drm
 LOCAL_MODULE_TAGS := optional
 LOCAL_VENDOR_MODULE := true
 
-LOCAL_CFLAGS := -std=c11 -Wno-unused-parameter
+LOCAL_CFLAGS := -Wno-unused-parameter
 
 LOCAL_SRC_FILES := \
-	gralloc_drm.c \
+	gralloc_drm.cpp \
 	gralloc_drm_kms.c
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := \
@@ -124,7 +124,7 @@ LOCAL_MODULE := gralloc.drm
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_RELATIVE_PATH := hw
 LOCAL_VENDOR_MODULE := true
-LOCAL_CFLAGS := -std=c11 -Wno-unused-parameter
+LOCAL_CFLAGS := -Wno-unused-parameter
 include $(BUILD_SHARED_LIBRARY)
 
 endif # DRM_GPU_DRIVERS

@@ -357,8 +357,7 @@ int gralloc_drm_reserve_plane(struct gralloc_drm_t *drm,
 	uint32_t src_h)
 {
 	int j;
-	struct gralloc_drm_handle_t *drm_handle =
-		gralloc_drm_handle(handle);
+	struct gralloc_drm_handle_t *drm_handle = gralloc_handle(handle);
 	int plane_count = drm->plane_resources->count_planes;
 	struct gralloc_drm_plane_t *plane = drm->planes;
 
