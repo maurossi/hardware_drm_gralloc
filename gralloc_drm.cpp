@@ -32,10 +32,17 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <tuple>
+#include <unordered_map>
+
+#include <android/gralloc_handle.h>
+
 #include "gralloc_drm.h"
 #include "gralloc_drm_priv.h"
 
 #define unlikely(x) __builtin_expect(!!(x), 0)
+
+static std::unordered_map<buffer_handle_t, struct gralloc_drm_bo_t *> drm_bo_handle_map;
 
 static int32_t gralloc_drm_pid = 0;
 
@@ -186,39 +193,33 @@ int gralloc_drm_get_fd(struct gralloc_drm_t *drm)
 static struct gralloc_drm_bo_t *validate_handle(buffer_handle_t _handle,
 		struct gralloc_drm_t *drm)
 {
-	struct gralloc_drm_handle_t *handle = gralloc_drm_handle(_handle);
+	if (drm_bo_handle_map.count(_handle)) {
+		gralloc_drm_bo_t *bo = drm_bo_handle_map[_handle];
+		return bo;
+	}
 
+	/* check only */
+	if (!drm)
+		return NULL;
+
+	struct gralloc_handle_t *handle = gralloc_handle(_handle);
 	if (!handle)
 		return NULL;
 
-	/* the buffer handle is passed to a new process */
-	ALOGE("data_owner=%d gralloc_pid=%d data=%p\n", handle->data_owner, gralloc_drm_get_pid(), handle->data);
-	if (unlikely(handle->data_owner != gralloc_drm_pid)) {
-		struct gralloc_drm_bo_t *bo;
+	/* create the struct gralloc_drm_bo_t locally */
+	ALOGE("handle: name=%d pfd=%d\n", handle->name, handle->prime_fd);
+	struct gralloc_drm_bo_t *bo;
+	if (handle->name || handle->prime_fd >= 0)
+		bo = drm->drv->alloc(drm->drv, handle);
+	else /* an invalid handle */
+		return NULL;
 
-		/* check only */
-		if (!drm)
-			return NULL;
+	bo->drm = drm;
+	bo->imported = 1;
+	bo->handle = handle;
+	bo->refcount = 1;
 
-		ALOGE("handle: name=%d pfd=%d\n", handle->name,
-			handle->prime_fd);
-		/* create the struct gralloc_drm_bo_t locally */
-		if (handle->name || handle->prime_fd >= 0)
-			bo = drm->drv->alloc(drm->drv, handle);
-		else /* an invalid handle */
-			bo = NULL;
-		if (bo) {
-			bo->drm = drm;
-			bo->imported = 1;
-			bo->handle = handle;
-			bo->refcount = 1;
-		}
-
-		handle->data_owner = gralloc_drm_get_pid();
-		handle->data = bo;
-	}
-
-	return handle->data;
+	return bo;
 }
 
 /*
@@ -256,41 +257,15 @@ int gralloc_drm_handle_unregister(buffer_handle_t handle)
 }
 
 /*
- * Create a buffer handle.
- */
-static struct gralloc_drm_handle_t *create_bo_handle(int width,
-		int height, int format, int usage)
-{
-	struct gralloc_drm_handle_t *handle;
-
-	handle = new gralloc_drm_handle_t;
-	if (!handle)
-		return NULL;
-
-	handle->base.version = sizeof(handle->base);
-	handle->base.numInts = GRALLOC_DRM_HANDLE_NUM_INTS;
-	handle->base.numFds = GRALLOC_DRM_HANDLE_NUM_FDS;
-
-	handle->magic = GRALLOC_DRM_HANDLE_MAGIC;
-	handle->width = width;
-	handle->height = height;
-	handle->format = format;
-	handle->usage = usage;
-	handle->prime_fd = -1;
-
-	return handle;
-}
-
-/*
  * Create a bo.
  */
 struct gralloc_drm_bo_t *gralloc_drm_bo_create(struct gralloc_drm_t *drm,
 		int width, int height, int format, int usage)
 {
 	struct gralloc_drm_bo_t *bo;
-	struct gralloc_drm_handle_t *handle;
+	struct gralloc_handle_t *handle;
 
-	handle = create_bo_handle(width, height, format, usage);
+	handle = gralloc_handle(gralloc_handle_create(width, height, format, usage));
 	if (!handle)
 		return NULL;
 
@@ -305,9 +280,6 @@ struct gralloc_drm_bo_t *gralloc_drm_bo_create(struct gralloc_drm_t *drm,
 	bo->handle = handle;
 	bo->fb_id = 0;
 	bo->refcount = 1;
-
-	handle->data_owner = gralloc_drm_get_pid();
-	handle->data = bo;
 
 	return bo;
 }
@@ -325,11 +297,7 @@ static void gralloc_drm_bo_destroy(struct gralloc_drm_bo_t *bo)
 		return;
 
 	bo->drm->drv->free(bo->drm->drv, bo);
-	if (imported) {
-		handle->data_owner = 0;
-		handle->data = 0;
-	}
-	else {
+	if (!imported) {
 		delete handle;
 	}
 }
@@ -367,8 +335,8 @@ buffer_handle_t gralloc_drm_bo_get_handle(struct gralloc_drm_bo_t *bo, int *stri
 void gralloc_drm_resolve_format(buffer_handle_t _handle,
 	uint32_t *pitches, uint32_t *offsets, uint32_t *handles)
 {
-	struct gralloc_drm_handle_t *handle = gralloc_drm_handle(_handle);
-	struct gralloc_drm_bo_t *bo = handle->data;
+	struct gralloc_drm_handle_t *handle = gralloc_handle(_handle);
+	struct gralloc_drm_bo_t *bo = drm_bo_handle_map[_handle];
 	struct gralloc_drm_t *drm = bo->drm;
 
 	/* if handle exists and driver implements resolve_format */
@@ -381,7 +349,7 @@ void gralloc_drm_resolve_format(buffer_handle_t _handle,
  * Lock a bo.  XXX thread-safety?
  */
 int gralloc_drm_bo_lock(struct gralloc_drm_bo_t *bo,
-		int usage, int x, int y, int w, int h,
+		uint32_t usage, int x, int y, int w, int h,
 		void **addr)
 {
 	if ((bo->handle->usage & usage) != usage) {
