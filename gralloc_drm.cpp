@@ -43,19 +43,6 @@
 
 static std::unordered_map<buffer_handle_t, struct gralloc_drm_bo_t *> drm_bo_handle_map;
 
-static int32_t gralloc_drm_pid = 0;
-
-/*
- * Return the pid of the process.
- */
-static int gralloc_drm_get_pid(void)
-{
-	if (unlikely(!gralloc_drm_pid))
-		android_atomic_write((int32_t) getpid(), &gralloc_drm_pid);
-
-	return gralloc_drm_pid;
-}
-
 /*
  * Create the driver for a DRM fd.
  */
