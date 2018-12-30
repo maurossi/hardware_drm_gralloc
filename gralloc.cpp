@@ -109,6 +109,70 @@ static int drm_mod_unregister_buffer(const gralloc_module_t *mod,
 	return err;
 }
 
+/*
+ * Lock a bo.  XXX thread-safety?
+ */
+int gralloc_drm_bo_lock(struct gralloc_drm_bo_t *bo,
+		uint32_t usage, int x, int y, int w, int h,
+		void **addr)
+{
+	if ((bo->handle->usage & usage) != usage) {
+		/* make FB special for testing software renderer with */
+		if (!(bo->handle->usage & (
+				GRALLOC_USAGE_SW_READ_OFTEN |
+				GRALLOC_USAGE_HW_FB |
+				GRALLOC_USAGE_HW_TEXTURE |
+				GRALLOC_USAGE_HW_VIDEO_ENCODER))) {
+			ALOGE("bo.usage:x%X/usage:x%X is not GRALLOC_USAGE_HW_{FB,TEXTURE,VIDEO_ENCODER}",
+					bo->handle->usage, usage);
+			return -EINVAL;
+		}
+	}
+
+	/* allow multiple locks with compatible usages */
+	if (bo->lock_count && (bo->locked_for & usage) != usage)
+		return -EINVAL;
+
+	usage |= bo->locked_for;
+
+	if (usage & (GRALLOC_USAGE_SW_WRITE_MASK |
+		     GRALLOC_USAGE_SW_READ_MASK)) {
+		/* the driver is supposed to wait for the bo */
+		int write = !!(usage & GRALLOC_USAGE_SW_WRITE_MASK);
+		int err = bo->drm->drv->map(bo->drm->drv, bo,
+				x, y, w, h, write, addr);
+		if (err)
+			return err;
+	}
+	else {
+		/* kernel handles the synchronization here */
+	}
+
+	bo->lock_count++;
+	bo->locked_for |= usage;
+
+	return 0;
+}
+
+/*
+ * Unlock a bo.
+ */
+void gralloc_drm_bo_unlock(struct gralloc_drm_bo_t *bo)
+{
+	int mapped = bo->locked_for &
+		(GRALLOC_USAGE_SW_WRITE_MASK | GRALLOC_USAGE_SW_READ_MASK);
+
+	if (!bo->lock_count)
+		return;
+
+	if (mapped)
+		bo->drm->drv->unmap(bo->drm->drv, bo);
+
+	bo->lock_count--;
+	if (!bo->lock_count)
+		bo->locked_for = 0;
+}
+
 static int drm_mod_lock(const gralloc_module_t *mod, buffer_handle_t handle,
 		int usage, int x, int y, int w, int h, void **ptr)
 {
