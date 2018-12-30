@@ -153,7 +153,7 @@ struct gralloc_drm_t *gralloc_drm_create(void)
 		return NULL;
 
 	property_get("gralloc.drm.device", path, "/dev/dri/renderD128");
-	drm->fd = open(path, O_RDWR);
+	drm->fd = open(path, O_RDWR | O_CLOEXEC);
 	if (drm->fd < 0) {
 		ALOGE("failed to open %s", path);
 		return NULL;
