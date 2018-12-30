@@ -64,6 +64,9 @@ LOCAL_CFLAGS := -Wno-unused-parameter
 LOCAL_SRC_FILES := \
 	gralloc_drm.cpp
 
+LOCAL_EXPORT_C_INCLUDE_DIRS := \
+	$(LOCAL_PATH)
+
 LOCAL_C_INCLUDES := \
 	external/libdrm \
 	external/libdrm/include/drm
