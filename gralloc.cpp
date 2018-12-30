@@ -170,46 +170,6 @@ static int drm_mod_lock_ycbcr(const gralloc_module_t *mod, buffer_handle_t bhand
 	return 0;
 }
 
-static int drm_mod_lock_ycbcr(const gralloc_module_t *mod, buffer_handle_t bhandle,
-		int usage, int x, int y, int w, int h, struct android_ycbcr *ycbcr)
-{
-	struct gralloc_drm_handle_t *handle;
-	struct gralloc_drm_bo_t *bo;
-	void *ptr;
-	int err;
-
-	bo = gralloc_drm_bo_from_handle(bhandle);
-	if (!bo)
-		return -EINVAL;
-	handle = bo->handle;
-
-	switch(handle->format) {
-	case HAL_PIXEL_FORMAT_YCbCr_420_888:
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	err = gralloc_drm_bo_lock(bo, usage, x, y, w, h, &ptr);
-	if (err)
-		return err;
-
-	switch(handle->format) {
-	case HAL_PIXEL_FORMAT_YCbCr_420_888:
-		ycbcr->y = ptr;
-		ycbcr->cb = (uint8_t *)ptr + handle->stride * handle->height;
-		ycbcr->cr = (uint8_t *)ycbcr->cb + 1;
-		ycbcr->ystride = handle->stride;
-		ycbcr->cstride = handle->stride;
-		ycbcr->chroma_step = 2;
-		break;
-	default:
-		break;
-	}
-
-	return 0;
-}
-
 static int drm_mod_unlock(const gralloc_module_t *mod, buffer_handle_t handle)
 {
 	struct drm_module_t *dmod = (struct drm_module_t *) mod;
