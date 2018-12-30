@@ -57,6 +57,10 @@ LOCAL_SRC_FILES := \
 LOCAL_EXPORT_C_INCLUDE_DIRS := \
 	$(LOCAL_PATH)
 
+LOCAL_C_INCLUDES := \
+	external/libdrm \
+	external/libdrm/include/drm
+
 LOCAL_SHARED_LIBRARIES := \
 	libdrm \
 	liblog \
