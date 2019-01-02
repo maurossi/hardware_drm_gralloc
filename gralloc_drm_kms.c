@@ -278,9 +278,8 @@ static int gralloc_drm_bo_setplane(struct gralloc_drm_t *drm,
 
 	if (err) {
 		/* clear plane_mask so that this buffer won't be tried again */
-		struct gralloc_drm_handle_t *drm_handle =
-			(struct gralloc_drm_handle_t *) plane->handle;
-		drm_handle->plane_mask = 0;
+		struct gralloc_handle_t *drm_handle =
+			(struct gralloc_handle_t *) plane->handle;
 
 		ALOGE("drmModeSetPlane : error (%s) (plane %d crtc %d fb %d)",
 			strerror(-err),
@@ -356,17 +355,10 @@ int gralloc_drm_reserve_plane(struct gralloc_drm_t *drm,
 	uint32_t src_h)
 {
 	int j;
-	struct gralloc_drm_handle_t *drm_handle =
-		gralloc_drm_handle(handle);
+	struct gralloc_handle_t *drm_handle =
+		gralloc_handle(handle);
 	int plane_count = drm->plane_resources->count_planes;
 	struct gralloc_drm_plane_t *plane = drm->planes;
-
-	/* no supported planes for this handle */
-	if (!drm_handle->plane_mask) {
-		ALOGE("%s: buffer %p cannot be shown on a plane\n",
-			__func__, drm_handle);
-		return -EINVAL;
-	}
 
 	for (j = 0; j < plane_count; j++, plane++) {
 
@@ -380,7 +372,6 @@ int gralloc_drm_reserve_plane(struct gralloc_drm_t *drm,
 
 		/* if plane is available and can support this buffer */
 		if (!plane->active &&
-			drm_handle->plane_mask &
 			(1U << plane->drm_plane->plane_id)) {
 
 			plane->dst_x = dst_x;
