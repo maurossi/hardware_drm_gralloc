@@ -307,8 +307,6 @@ struct gralloc_drm_bo_t *gralloc_drm_bo_create(struct gralloc_drm_t *drm,
 	if (!handle)
 		return NULL;
 
-	handle->plane_mask = planes_for_format(drm, format);
-
 	bo = drm->drv->alloc(drm->drv, handle);
 	if (!bo) {
 		delete handle;
