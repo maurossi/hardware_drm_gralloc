@@ -51,7 +51,7 @@ LOCAL_VENDOR_MODULE := true
 LOCAL_CFLAGS := -std=c11 -Wno-unused-parameter
 
 LOCAL_SRC_FILES := \
-	gralloc_drm.c \
+	gralloc_drm.cpp \
 	gralloc_drm_kms.c
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := \
@@ -105,7 +105,7 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
-	gralloc.c \
+	gralloc.cpp \
 
 LOCAL_SHARED_LIBRARIES := \
 	libgralloc_drm \

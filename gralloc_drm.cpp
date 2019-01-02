@@ -135,7 +135,7 @@ struct gralloc_drm_t *gralloc_drm_create(void)
 		return NULL;
 	}
 
-	drm = calloc(1, sizeof(*drm));
+	drm = new gralloc_drm_t;
 	if (!drm)
 		return NULL;
 
@@ -156,7 +156,7 @@ struct gralloc_drm_t *gralloc_drm_create(void)
 
 	if (!drm->drv) {
 		close(drm->fd);
-		free(drm);
+		delete drm;
 		return NULL;
 	}
 
@@ -171,7 +171,7 @@ void gralloc_drm_destroy(struct gralloc_drm_t *drm)
 	if (drm->drv)
 		drm->drv->destroy(drm->drv);
 	close(drm->fd);
-	free(drm);
+	delete drm;
 }
 
 /*
@@ -298,7 +298,7 @@ static struct gralloc_drm_handle_t *create_bo_handle(int width,
 {
 	struct gralloc_drm_handle_t *handle;
 
-	handle = calloc(1, sizeof(*handle));
+	handle = new gralloc_drm_handle_t;
 	if (!handle)
 		return NULL;
 
@@ -334,7 +334,7 @@ struct gralloc_drm_bo_t *gralloc_drm_bo_create(struct gralloc_drm_t *drm,
 
 	bo = drm->drv->alloc(drm->drv, handle);
 	if (!bo) {
-		free(handle);
+		delete handle;
 		return NULL;
 	}
 
@@ -370,7 +370,7 @@ static void gralloc_drm_bo_destroy(struct gralloc_drm_bo_t *bo)
 		handle->data = 0;
 	}
 	else {
-		free(handle);
+		delete handle;
 	}
 }
 
