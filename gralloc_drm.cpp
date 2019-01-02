@@ -373,13 +373,13 @@ buffer_handle_t gralloc_drm_bo_get_handle(struct gralloc_drm_bo_t *bo, int *stri
 
 int gralloc_drm_get_gem_handle(buffer_handle_t _handle)
 {
-	struct gralloc_drm_handle_t *handle = gralloc_drm_handle(_handle);
+	struct gralloc_drm_handle_t *handle = gralloc_handle(_handle);
 	return (handle) ? handle->name : 0;
 }
 
 int gralloc_drm_get_prime_fd(buffer_handle_t _handle)
 {
-	struct gralloc_drm_handle_t *handle = gralloc_drm_handle(_handle);
+	struct gralloc_drm_handle_t *handle = gralloc_handle(_handle);
 	return (handle) ? handle->prime_fd : -1;
 }
 
