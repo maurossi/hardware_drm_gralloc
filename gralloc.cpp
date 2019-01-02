@@ -315,7 +315,7 @@ static int drm_mod_close_fb0(struct hw_device_t *dev)
 {
 	struct framebuffer_device_t *fb = (struct framebuffer_device_t *) dev;
 
-	free(fb);
+	delete fb;
 
 	return 0;
 }
@@ -363,7 +363,7 @@ static int drm_mod_open_fb0(struct drm_module_t *dmod, struct hw_device_t **dev)
 	if (err)
 		return err;
 
-	fb = calloc(1, sizeof(*fb));
+	fb = new framebuffer_device_t;
 	if (!fb)
 		return -ENOMEM;
 
