@@ -229,7 +229,7 @@ static struct gralloc_drm_bo_t *validate_handle(buffer_handle_t _handle,
 	if (!drm)
 		return NULL;
 
-	struct gralloc_drm_handle_t *handle = gralloc_handle(_handle);
+	struct gralloc_handle_t *handle = gralloc_handle(_handle);
 	if (!handle)
 		return NULL;
 
@@ -290,7 +290,7 @@ struct gralloc_drm_bo_t *gralloc_drm_bo_create(struct gralloc_drm_t *drm,
 {
 	struct gralloc_drm_bo_t *bo;
 	native_handle_t *_handle;
-	gralloc_drm_handle_t *handle;
+	gralloc_handle_t *handle;
 
 	_handle = gralloc_handle_create(width, height, format, usage);
 	if (!_handle)
@@ -322,7 +322,7 @@ struct gralloc_drm_bo_t *gralloc_drm_bo_create(struct gralloc_drm_t *drm,
  */
 static void gralloc_drm_bo_destroy(struct gralloc_drm_bo_t *bo)
 {
-	struct gralloc_drm_handle_t *handle = bo->handle;
+	struct gralloc_handle_t *handle = bo->handle;
 	int imported = bo->imported;
 
 	/* gralloc still has a reference */
@@ -365,13 +365,13 @@ buffer_handle_t gralloc_drm_bo_get_handle(struct gralloc_drm_bo_t *bo, int *stri
 
 int gralloc_drm_get_gem_handle(buffer_handle_t _handle)
 {
-	struct gralloc_drm_handle_t *handle = gralloc_handle(_handle);
+	struct gralloc_handle_t *handle = gralloc_handle(_handle);
 	return (handle) ? handle->name : 0;
 }
 
 int gralloc_drm_get_prime_fd(buffer_handle_t _handle)
 {
-	struct gralloc_drm_handle_t *handle = gralloc_handle(_handle);
+	struct gralloc_handle_t *handle = gralloc_handle(_handle);
 	return (handle) ? handle->prime_fd : -1;
 }
 
@@ -381,7 +381,7 @@ int gralloc_drm_get_prime_fd(buffer_handle_t _handle)
 void gralloc_drm_resolve_format(buffer_handle_t _handle,
 	uint32_t *pitches, uint32_t *offsets, uint32_t *handles)
 {
-	struct gralloc_drm_handle_t *handle = gralloc_handle(_handle);
+	struct gralloc_handle_t *handle = gralloc_handle(_handle);
 	struct gralloc_drm_bo_t *bo = drm_bo_handle_map[_handle];
 	struct gralloc_drm_t *drm = bo->drm;
 

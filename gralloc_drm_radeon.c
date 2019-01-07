@@ -167,7 +167,7 @@ static int radeon_get_base_align(struct radeon_info *info,
 }
 
 static uint32_t radeon_get_tiling(struct radeon_info *info,
-		const struct gralloc_drm_handle_t *handle)
+		const struct gralloc_handle_t *handle)
 {
 	int sw = (GRALLOC_USAGE_SW_WRITE_MASK | GRALLOC_USAGE_SW_READ_MASK);
 
@@ -181,7 +181,7 @@ static uint32_t radeon_get_tiling(struct radeon_info *info,
 }
 
 static struct radeon_bo *radeon_alloc(struct radeon_info *info,
-		struct gralloc_drm_handle_t *handle)
+		struct gralloc_handle_t *handle)
 {
 	struct radeon_bo *rbo;
 	int aligned_width, aligned_height;
@@ -252,7 +252,7 @@ static void radeon_zero(struct radeon_info *info,
 }
 
 static struct gralloc_drm_bo_t *
-drm_gem_radeon_alloc(struct gralloc_drm_drv_t *drv, struct gralloc_drm_handle_t *handle)
+drm_gem_radeon_alloc(struct gralloc_drm_drv_t *drv, struct gralloc_handle_t *handle)
 {
 	struct radeon_info *info = (struct radeon_info *) drv;
 	struct radeon_buffer *rbuf;

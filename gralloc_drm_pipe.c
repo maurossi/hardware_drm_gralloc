@@ -113,7 +113,7 @@ static unsigned get_pipe_bind(int usage)
 }
 
 static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
-		const struct gralloc_drm_handle_t *handle)
+		const struct gralloc_handle_t *handle)
 {
 	struct pipe_buffer *buf;
 	struct pipe_resource templ;
@@ -188,7 +188,7 @@ fail:
 }
 
 static struct gralloc_drm_bo_t *pipe_alloc(struct gralloc_drm_drv_t *drv,
-		struct gralloc_drm_handle_t *handle)
+		struct gralloc_handle_t *handle)
 {
 	struct pipe_manager *pm = (struct pipe_manager *) drv;
 	struct pipe_buffer *buf;

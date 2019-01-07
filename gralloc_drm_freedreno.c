@@ -67,7 +67,7 @@ static struct fd_bo *alloc_bo(struct fd_info *info,
 }
 
 static struct gralloc_drm_bo_t *
-fd_alloc(struct gralloc_drm_drv_t *drv, struct gralloc_drm_handle_t *handle)
+fd_alloc(struct gralloc_drm_drv_t *drv, struct gralloc_handle_t *handle)
 {
 	struct fd_info *info = (struct fd_info *) drv;
 	struct fd_buffer *fd_buf;

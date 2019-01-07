@@ -159,7 +159,7 @@ unlock:
 static int drm_mod_lock_ycbcr(const gralloc_module_t *mod, buffer_handle_t bhandle,
 		int usage, int x, int y, int w, int h, struct android_ycbcr *ycbcr)
 {
-	struct gralloc_drm_handle_t *handle;
+	struct gralloc_handle_t *handle;
 	struct gralloc_drm_bo_t *bo;
 	void *ptr;
 	int err;

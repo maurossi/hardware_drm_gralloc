@@ -204,7 +204,7 @@ static struct nouveau_bo *alloc_bo(struct nouveau_info *info,
 }
 
 static struct gralloc_drm_bo_t *nouveau_alloc(struct gralloc_drm_drv_t *drv,
-		struct gralloc_drm_handle_t *handle)
+		struct gralloc_handle_t *handle)
 {
 	struct nouveau_info *info = (struct nouveau_info *) drv;
 	struct nouveau_buffer *nb;

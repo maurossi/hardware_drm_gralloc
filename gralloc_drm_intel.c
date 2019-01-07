@@ -400,7 +400,7 @@ static void intel_blit(struct gralloc_drm_drv_t *drv,
 }
 
 static drm_intel_bo *alloc_ibo(struct intel_info *info,
-		const struct gralloc_drm_handle_t *handle,
+		const struct gralloc_handle_t *handle,
 		uint32_t *tiling, unsigned long *stride)
 {
 	drm_intel_bo *ibo;
@@ -497,7 +497,7 @@ static drm_intel_bo *alloc_ibo(struct intel_info *info,
 }
 
 static struct gralloc_drm_bo_t *intel_alloc(struct gralloc_drm_drv_t *drv,
-		struct gralloc_drm_handle_t *handle)
+		struct gralloc_handle_t *handle)
 {
 	struct intel_info *info = (struct intel_info *) drv;
 	struct intel_buffer *ib;
