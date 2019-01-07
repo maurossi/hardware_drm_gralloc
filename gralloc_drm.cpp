@@ -34,6 +34,8 @@
 #include <tuple>
 #include <unordered_map>
 
+#include <android/gralloc_handle.h>
+
 #include "gralloc_drm.h"
 #include "gralloc_drm_priv.h"
 
@@ -288,7 +290,7 @@ struct gralloc_drm_bo_t *gralloc_drm_bo_create(struct gralloc_drm_t *drm,
 {
 	struct gralloc_drm_bo_t *bo;
 	native_handle_t *_handle;
-	gralloc_handle_t *handle;
+	gralloc_drm_handle_t *handle;
 
 	_handle = gralloc_handle_create(width, height, format, usage);
 	if (!_handle)

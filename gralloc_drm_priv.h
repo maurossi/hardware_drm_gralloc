@@ -192,6 +192,7 @@ struct gralloc_drm_bo_t {
 
 	int imported;  /* the handle is from a remote proces when true */
 	int fb_handle; /* the GEM handle of the bo */
+	int gem_name;  /* the GEM name of the bo */
 	int fb_id;     /* the fb id */
 
 	int lock_count;
