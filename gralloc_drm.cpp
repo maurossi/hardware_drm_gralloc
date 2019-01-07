@@ -43,8 +43,6 @@
 
 static std::unordered_map<buffer_handle_t, struct gralloc_drm_bo_t *> drm_bo_handle_map;
 
-static int32_t gralloc_drm_pid = 0;
-
 /*
  * Create the driver for a DRM fd.
  */
