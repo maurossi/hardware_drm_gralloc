@@ -25,6 +25,7 @@
 
 #include <cutils/log.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 #include <pthread.h>
 #include <errno.h>

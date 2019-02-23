@@ -31,6 +31,7 @@
 
 #include <cutils/log.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include <drm.h>
 #include <radeon_drm.h>
