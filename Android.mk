@@ -81,12 +81,6 @@ LOCAL_CFLAGS += -DENABLE_RADEON
 LOCAL_SHARED_LIBRARIES += libdrm_radeon
 endif
 
-ifneq ($(filter $(nouveau_drivers), $(DRM_GPU_DRIVERS)),)
-LOCAL_SRC_FILES += gralloc_drm_nouveau.c
-LOCAL_CFLAGS += -DENABLE_NOUVEAU
-LOCAL_SHARED_LIBRARIES += libdrm_nouveau
-endif
-
 ifneq ($(filter pipe, $(DRM_GPU_DRIVERS)),)
 LOCAL_SRC_FILES += gralloc_drm_pipe.c
 LOCAL_CFLAGS += -DENABLE_PIPE -DHAVE_FUNC_ATTRIBUTE_UNUSED
