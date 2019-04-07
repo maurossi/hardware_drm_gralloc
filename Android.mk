@@ -67,24 +67,6 @@ LOCAL_SHARED_LIBRARIES := \
 	libcutils \
 	libhardware_legacy \
 
-ifneq ($(filter $(freedreno_drivers), $(DRM_GPU_DRIVERS)),)
-LOCAL_SRC_FILES += gralloc_drm_freedreno.c
-LOCAL_CFLAGS += -DENABLE_FREEDRENO
-LOCAL_SHARED_LIBRARIES += libdrm_freedreno
-endif
-
-ifneq ($(filter $(intel_drivers), $(DRM_GPU_DRIVERS)),)
-LOCAL_SRC_FILES += gralloc_drm_intel.c
-LOCAL_CFLAGS += -DENABLE_INTEL
-LOCAL_SHARED_LIBRARIES += libdrm_intel
-endif
-
-ifneq ($(filter $(radeon_drivers), $(DRM_GPU_DRIVERS)),)
-LOCAL_SRC_FILES += gralloc_drm_radeon.c
-LOCAL_CFLAGS += -DENABLE_RADEON
-LOCAL_SHARED_LIBRARIES += libdrm_radeon
-endif
-
 ifneq ($(filter pipe, $(DRM_GPU_DRIVERS)),)
 LOCAL_SRC_FILES += gralloc_drm_pipe.c
 LOCAL_CFLAGS += -DENABLE_PIPE
