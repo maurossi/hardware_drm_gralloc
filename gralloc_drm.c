@@ -119,7 +119,7 @@ struct gralloc_drm_t *gralloc_drm_create(void)
 	if (!drm)
 		return NULL;
 
-	drm->fd = drmOpenByFB(0, DRM_NODE_PRIMARY);
+	drm->fd = drmOpenByFB(0, DRM_NODE_RENDER);
 	if (drm->fd < 0) {
 		ALOGE("failed to open DRM device of fb0");
 	} else {
@@ -210,7 +210,11 @@ static struct gralloc_drm_bo_t *validate_handle(buffer_handle_t _handle,
 			return NULL;
 
 		/* create the struct gralloc_drm_bo_t locally */
+#ifdef DMABUF
+		if (handle->prime_fd >= 0)
+#else
 		if (handle->name)
+#endif
 			bo = drm->drv->alloc(drm->drv, handle);
 		else /* an invalid handle */
 			bo = NULL;

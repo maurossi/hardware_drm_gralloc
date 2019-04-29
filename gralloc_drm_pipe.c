@@ -141,6 +141,18 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 	templ.depth0 = 1;
 	templ.array_size = 1;
 
+#ifdef DMABUF
+	if (handle->prime_fd >= 0) {
+		buf->winsys.type = WINSYS_HANDLE_TYPE_FD;
+		buf->winsys.handle = handle->prime_fd;
+		buf->winsys.stride = handle->stride;
+
+		buf->resource = pm->screen->resource_from_handle(pm->screen,
+				&templ, &buf->winsys, PIPE_HANDLE_USAGE_FRAMEBUFFER_WRITE);
+		if (!buf->resource)
+			goto fail;
+	}
+#else
 	if (handle->name) {
 		buf->winsys.type = WINSYS_HANDLE_TYPE_SHARED;
 		buf->winsys.handle = handle->name;
@@ -151,13 +163,18 @@ static struct pipe_buffer *get_pipe_buffer_locked(struct pipe_manager *pm,
 		if (!buf->resource)
 			goto fail;
 	}
+#endif
 	else {
 		buf->resource =
 			pm->screen->resource_create(pm->screen, &templ);
 		if (!buf->resource)
 			goto fail;
 
+#ifdef DMABUF
+		buf->winsys.type = WINSYS_HANDLE_TYPE_FD;
+#else
 		buf->winsys.type = WINSYS_HANDLE_TYPE_SHARED;
+#endif
 		if (!pm->screen->resource_get_handle(pm->screen, pm->context,
 				buf->resource, &buf->winsys, PIPE_HANDLE_USAGE_FRAMEBUFFER_WRITE))
 			goto fail;
@@ -198,7 +215,11 @@ static struct gralloc_drm_bo_t *pipe_alloc(struct gralloc_drm_drv_t *drv,
 	pthread_mutex_unlock(&pm->mutex);
 
 	if (buf) {
+#ifdef DMABUF
+		handle->prime_fd = (int) buf->winsys.handle;
+#else
 		handle->name = (int) buf->winsys.handle;
+#endif
 		handle->stride = (int) buf->winsys.stride;
 
 		buf->base.handle = handle;
@@ -211,6 +232,12 @@ static void pipe_free(struct gralloc_drm_drv_t *drv, struct gralloc_drm_bo_t *bo
 {
 	struct pipe_manager *pm = (struct pipe_manager *) drv;
 	struct pipe_buffer *buf = (struct pipe_buffer *) bo;
+
+#ifdef DMABUF
+	struct gralloc_drm_handle_t *handle = bo->handle;
+	close(handle->prime_fd);
+	handle->prime_fd = -1;
+#endif
 
 	pthread_mutex_lock(&pm->mutex);
 
