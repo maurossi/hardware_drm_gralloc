@@ -54,7 +54,7 @@ struct fd_buffer {
 static struct fd_bo *alloc_bo(struct fd_info *info,
 		int width, int height, int cpp, int usage, int *pitch)
 {
-	struct fd_bo *bo = NULL;
+//	struct fd_bo *bo = NULL;
 	int flags, size;
 
 	/* TODO need a scanout flag if (usage & GRALLOC_USAGE_HW_FB).. */
@@ -153,7 +153,7 @@ static void fd_unmap(struct gralloc_drm_drv_t *drv,
 static void fd_init_kms_features(struct gralloc_drm_drv_t *drv,
 		struct gralloc_drm_t *drm)
 {
-	struct fd_info *info = (struct fd_info *) drv;
+//	struct fd_info *info = (struct fd_info *) drv;
 
 	switch (drm->primary->fb_format) {
 	case HAL_PIXEL_FORMAT_RGBA_8888:
@@ -182,7 +182,7 @@ static void fd_destroy(struct gralloc_drm_drv_t *drv)
 struct gralloc_drm_drv_t *gralloc_drm_drv_create_for_freedreno(int fd)
 {
 	struct fd_info *info;
-	int err;
+//	int err;
 
 	info = calloc(1, sizeof(*info));
 	if (!info)
