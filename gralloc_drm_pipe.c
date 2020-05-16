@@ -29,7 +29,7 @@
 
 #include <pipe/p_screen.h>
 #include <pipe/p_context.h>
-#include <state_tracker/winsys_handle.h>
+#include <frontend/winsys_handle.h>
 #include <util/u_inlines.h>
 #include <util/u_memory.h>
 
