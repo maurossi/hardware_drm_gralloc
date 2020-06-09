@@ -1015,7 +1015,7 @@ static int drm_kms_init_with_connector(struct gralloc_drm_t *drm,
 				connector->connector_id,
 				connector->connector_type);
 		for (i = 0; i < connector->count_modes; i++)
-			ALOGI("  %s", connector->modes[i].name);
+			ALOGI("  %s@%u", connector->modes[i].name, connector->modes[i].vrefresh);
 	}
 	else {
 		ALOGI("there is one mode on connector 0x%d: %s",
