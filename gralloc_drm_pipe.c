@@ -245,9 +245,9 @@ static int pipe_map(struct gralloc_drm_drv_t *drv,
 	if (!err) {
 		enum pipe_transfer_usage usage;
 
-		usage = PIPE_TRANSFER_READ;
+		usage = PIPE_MAP_READ;
 		if (enable_write)
-			usage |= PIPE_TRANSFER_WRITE;
+			usage |= PIPE_MAP_WRITE;
 
 		assert(!buf->transfer);
 
