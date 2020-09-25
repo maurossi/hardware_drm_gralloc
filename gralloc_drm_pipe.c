@@ -243,7 +243,7 @@ static int pipe_map(struct gralloc_drm_drv_t *drv,
 	}
 
 	if (!err) {
-		enum pipe_transfer_usage usage;
+		enum pipe_map_flags usage;
 
 		usage = PIPE_MAP_READ;
 		if (enable_write)
