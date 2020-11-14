@@ -48,7 +48,7 @@ LOCAL_MODULE := libgralloc_drm
 LOCAL_MODULE_TAGS := optional
 LOCAL_VENDOR_MODULE := true
 
-LOCAL_CFLAGS := -std=c11 -Wno-unused-parameter
+LOCAL_CFLAGS := -std=c11 -Wno-unused-parameter -Wno-unused-label -Wno-sometimes-uninitialized
 
 LOCAL_SRC_FILES := \
 	gralloc_drm.c \
