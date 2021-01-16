@@ -49,6 +49,7 @@
 #define NV_MAXWELL  0x110
 #define NV_PASCAL   0x130
 #define NV_VOLTA    0x140
+#define NV_TURING   0x160
 
 #define NV50_TILE_HEIGHT(m) (4 << ((m) >> 4))
 #define NVC0_TILE_HEIGHT(m) (8 << ((m) >> 4))
@@ -374,6 +375,9 @@ static int nouveau_init(struct nouveau_info *info)
 		break;
 	case 0x140:
 		info->arch = NV_VOLTA;
+		break;
+	case 0x160:
+		info->arch = NV_TURING;
 		break;
 	default:
 		ALOGE("unknown nouveau chipset 0x%x", info->dev->chipset);
