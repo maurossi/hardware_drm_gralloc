@@ -215,7 +215,7 @@ static void pipe_free(struct gralloc_drm_drv_t *drv, struct gralloc_drm_bo_t *bo
 	pthread_mutex_lock(&pm->mutex);
 
 	if (buf->transfer)
-		pipe_transfer_unmap(pm->context, buf->transfer);
+		pipe_texture_unmap(pm->context, buf->transfer);
 	pipe_resource_reference(&buf->resource, NULL);
 
 	pthread_mutex_unlock(&pm->mutex);
@@ -255,7 +255,7 @@ static int pipe_map(struct gralloc_drm_drv_t *drv,
 		 * ignore x, y, w and h so that returned addr points at the
 		 * start of the buffer
 		 */
-		*addr = pipe_transfer_map(pm->context, buf->resource,
+		*addr = pipe_texture_map(pm->context, buf->resource,
 					  0, 0, usage, 0, 0,
 					  buf->resource->width0, buf->resource->height0,
 					  &buf->transfer);
@@ -278,7 +278,7 @@ static void pipe_unmap(struct gralloc_drm_drv_t *drv,
 
 	assert(buf && buf->transfer);
 
-	pipe_transfer_unmap(pm->context, buf->transfer);
+	pipe_texture_unmap(pm->context, buf->transfer);
 	buf->transfer = NULL;
 
 	pm->context->flush(pm->context, NULL, 0);
